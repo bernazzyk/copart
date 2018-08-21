@@ -9,7 +9,7 @@ It will ask username and password. Default username is ‘root’ and password will 
 7. apt install docker-compose
 
 
-1. git clone https://gitlab.com/zaza316/copart.git
+1. git clone git@github.com:bernazzyk/copart.git
 2. cd copart/
 3. docker-compose up -d
 4. docker exec -ti copart_web_1 bash
