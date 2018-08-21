@@ -1,0 +1,61 @@
+version: '3'
+
+services:
+  db:
+    image: postgres
+    restart: unless-stopped
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    ports:
+      - "5432:5432"
+
+#  db:
+#    image: mysql
+#    ports:
+#      - "3306:3306"
+#    environment:
+#      MYSQL_ROOT_PASSWORD: ok123456
+#      MYSQL_USER: copart
+#      MYSQL_PASSWORD: copart
+#      MYSQL_DATABASE: copart
+
+  redis:
+    image: redis:latest
+    restart: unless-stopped
+#    volumes:
+#      - ./volumes/redis:/data
+    ports:
+      - "6379:6379"
+
+  web:
+    build: .
+    restart: unless-stopped
+    command: python3 manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/code
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+      - redis
+
+  celery:
+    build: .
+    command: celery -A copart worker --loglevel=INFO --concurrency=4
+    volumes:
+      - .:/code
+    depends_on:
+      - db
+      - redis
+
+  celery-beat:
+    build: .
+    command: celery -A copart beat -l info
+    volumes:
+      - .:/code
+    depends_on:
+      - db
+      - redis
+
+volumes:
+  postgres_data:
